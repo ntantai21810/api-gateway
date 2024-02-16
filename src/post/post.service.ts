@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { ClientKafka } from '@nestjs/microservices';
 
 @Injectable()
-export class PostService {
+export class PostService implements OnModuleInit {
   constructor(
     @Inject('POST_SERVICE') private readonly postClient: ClientKafka,
   ) {}
@@ -14,7 +14,7 @@ export class PostService {
   }
 
   findAll() {
-    return 'This action returns all posts';
+    return this.postClient.send('get_post', '');
   }
 
   findOne(id: number) {
@@ -27,5 +27,9 @@ export class PostService {
 
   remove(id: number) {
     return `This action removes a #${id} post`;
+  }
+
+  onModuleInit() {
+    this.postClient.subscribeToResponseOf('get_post');
   }
 }
