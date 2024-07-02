@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  dev_deploy_job:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: echo "${{ secrets.TEST }}" > secret.txt
+      - run: cat secret.txt
+
+      - name: Create credentials file
+        run: |
+          printf '%s' "${{ secrets.TEST }}" > "${HOME}/sa-cloud-sql.json"
+          cat "${HOME}/sa-cloud-sql.json"
+
+      
