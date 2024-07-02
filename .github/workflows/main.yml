@@ -1,27 +1,35 @@
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
   dev_deploy_job:
     runs-on: 'ubuntu-latest'
+    env: 
+      TEST: ${{ secrets.TEST }}
+      BASE64: ${{ secrets.BASE64 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - run: echo "${{ secrets.TEST }}" > secret.txt
-      - run: cat secret.txt
+      - name: Install jq
+        run: sudo apt-get install jq
 
       - name: Create credentials file
         run: |
-          printf '%s' "${{ secrets.TEST }}" > "${HOME}/sa-cloud-sql.json"
+          printf '%s' $TEST > "${HOME}/sa-cloud-sql.json"
           cat "${HOME}/sa-cloud-sql.json"
+          jq empty "${HOME}/sa-cloud-sql.json"
 
+      - name: Debug
+        run: |
+          echo $BASE64 | base64 --decode > output.json
+          cat output.json
       
